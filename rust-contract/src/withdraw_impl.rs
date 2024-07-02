@@ -42,8 +42,7 @@ impl Contract {
         }
     }
 
-    pub fn check_unclaimed_token_balance(&self) -> Option<TokenBalance> {
-        let account_id = env::predecessor_account_id();
+    pub fn check_unclaimed_token_balance(&self, account_id: AccountId) -> Option<TokenBalance> {
         let account = self.accounts.get(&account_id).expect(ER10_ACC_NOT_REGISTERED).clone();
         account.token_balance
     }
