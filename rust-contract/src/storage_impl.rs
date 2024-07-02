@@ -96,6 +96,8 @@ impl StorageManagement for Contract {
         // They should have expected that behaviour since they are purposely setting force to be true
         self.accounts.remove(&account_id);
 
+        assert!(env::account_balance().gt(&storage_balance), "{}", ER14_CONTRACT_NOT_ENOUGH_BALANCE_FOR_ACC_UNREGISTER);
+
         Promise::new(account_id.clone()).transfer(storage_balance);
 
         true
