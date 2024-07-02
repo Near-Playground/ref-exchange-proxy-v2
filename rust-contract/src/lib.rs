@@ -1,6 +1,7 @@
 use near_sdk::store::{LookupMap, LookupSet};
 use near_sdk::{assert_one_yocto, env, log, near_bindgen, AccountId, BorshStorageKey, Gas, NearToken, PanicOnDefault, Promise, PromiseOrValue, PromiseResult, StorageUsage};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use near_sdk::serde::{Deserialize, Serialize};
 
 mod storage_impl;
 use storage_impl::*;

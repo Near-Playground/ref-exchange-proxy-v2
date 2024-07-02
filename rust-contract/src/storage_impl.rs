@@ -12,7 +12,7 @@ const ACC_ID_STORAGE: StorageUsage = 64;
 const ACC_ID_AS_KEY_STORAGE: StorageUsage = ACC_ID_STORAGE + 4;
 const LOOKUPMAP_STORAGE_PER_ACCOUNT: StorageUsage = ACC_ID_AS_KEY_STORAGE + ACCOUNT_STORAGE;
 
-#[derive(BorshSerialize, BorshDeserialize, Clone)]
+#[derive(BorshSerialize, BorshDeserialize, Serialize, Deserialize,  Clone)]
 pub struct TokenBalance {
     pub token_account_id: AccountId,
     pub balance: NearToken,
