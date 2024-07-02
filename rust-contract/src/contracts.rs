@@ -16,7 +16,7 @@ pub trait _FungibleTokenContract {
 
 #[ext_contract(ext_self)]
 pub trait _RefExchangeProxy {
-    fn callback_post_withdraw(
+    fn callback_post_send_tokens(
         &mut self,
         account_id: AccountId,
         token_id: AccountId,

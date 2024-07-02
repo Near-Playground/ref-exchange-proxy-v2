@@ -10,12 +10,12 @@ impl Contract {
             .then(
                 ext_self::ext(env::current_account_id())
                     .with_static_gas(Gas::from_tgas(20))
-                    .callback_post_withdraw(account_id, token_id, amount)
+                    .callback_post_send_tokens(account_id, token_id, amount)
             ).into()
     }
 
     #[private]
-    pub fn callback_post_withdraw(&mut self, account_id: AccountId, token_id: AccountId, amount: NearToken) -> Option<TokenBalance> {
+    pub fn callback_post_send_tokens(&mut self, account_id: AccountId, token_id: AccountId, amount: NearToken) -> Option<TokenBalance> {
         assert_eq!(env::promise_results_count(), 1, "{}", ER30_NO_PROMISE_RESULT_DETECTED);
 
         match env::promise_result(0) {
@@ -26,7 +26,7 @@ impl Contract {
                 })
             },
             PromiseResult::Failed => {
-                let mut account = self.accounts.get(&account_id).expect(ER10_ACC_NOT_REGISTERED).clone();
+                let mut account = self.accounts.get(&account_id).unwrap().clone();
 
                 log!("{}", ER40_SEND_TOKENS_FAILED);
 
