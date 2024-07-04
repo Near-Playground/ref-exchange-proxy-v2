@@ -25,13 +25,13 @@ pub struct Account {
 }
 
 impl Contract {
-    fn internal_storage_cost(&self) -> NearToken {
+    pub fn internal_storage_cost(&self) -> NearToken {
         NearToken::from_yoctonear(
             LOOKUPMAP_STORAGE_PER_ACCOUNT as u128 * env::storage_byte_cost().as_yoctonear(),
         )
     }
 
-    fn internal_storage_registered(&self, account_id: &AccountId) -> bool {
+    pub fn internal_storage_registered(&self, account_id: &AccountId) -> bool {
         self.accounts.contains_key(account_id)
     }
 }

@@ -1,13 +1,12 @@
 use crate::*;
 
-#[near_bindgen]
 impl Contract {
-    fn internal_send_tokens(
+    pub fn internal_send_tokens(
         &mut self,
         account_id: AccountId,
         token_id: AccountId,
         amount: NearToken,
-    ) -> PromiseOrValue<Option<TokenBalance>> {
+    ) -> Promise {
         ext_fungible_token::ext(token_id.clone())
             .with_attached_deposit(NearToken::from_yoctonear(1))
             .with_static_gas(Gas::from_tgas(20))
@@ -17,9 +16,11 @@ impl Contract {
                     .with_static_gas(Gas::from_tgas(20))
                     .callback_post_send_tokens(account_id, token_id, amount),
             )
-            .into()
     }
+}
 
+#[near_bindgen]
+impl Contract {
     #[private]
     pub fn callback_post_send_tokens(
         &mut self,
@@ -66,7 +67,7 @@ impl Contract {
     }
 
     #[payable]
-    pub fn withdraw_unclaimed_token_balance(&mut self) -> PromiseOrValue<Option<TokenBalance>> {
+    pub fn withdraw_unclaimed_token_balance(&mut self) -> Promise {
         assert_one_yocto();
 
         let account_id = env::predecessor_account_id();
