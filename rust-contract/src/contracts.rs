@@ -21,5 +21,5 @@ pub trait _RefExchangeProxy {
         account_id: AccountId,
         token_id: AccountId,
         amount: NearToken,
-    );
+    ) -> Option<TokenBalance>;
 }
