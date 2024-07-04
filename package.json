@@ -1,0 +1,9 @@
+{
+    "name": "ref-exchange-proxy-v2",
+    "version": "1.0.0",
+    "scripts": {
+        "contract:build": "cd rust-contract && cargo near build --no-release --no-abi --out-dir '../public'"
+    },
+    "author": "Steve Kok <kokchoquan@gmail.com>",
+    "license": "GPL-3.0-or-later"
+}
