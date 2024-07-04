@@ -14,6 +14,12 @@ pub struct SwapAction {
     pub min_amount_out: NearToken,
 }
 
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "near_sdk::serde")]
+struct Message {
+    actions: Vec<SwapAction>,
+}
+
 impl Contract {
     pub fn internal_safe_parse_swap_actions(
         &self,
@@ -21,8 +27,10 @@ impl Contract {
         token_in: AccountId,
         amount_in: NearToken,
     ) -> Vec<SwapAction> {
-        let mut actions: Vec<SwapAction> =
+        let message: Message =
             near_sdk::serde_json::from_str(&msg).expect(ER50_FAIL_TO_PARSE_SWAP_ACTIONS);
+
+        let mut actions = message.actions;
 
         assert!(!actions.is_empty(), "{}", ER51_EMPTY_SWAP_ACTIONS);
 
@@ -53,6 +61,22 @@ impl Contract {
         amount: NearToken,
         msg: String,
     ) -> PromiseOrValue<NearToken> {
+        assert!(
+            self.internal_storage_registered(&sender_id),
+            "{}",
+            ER10_ACC_NOT_REGISTERED
+        );
+
+        assert!(
+            self.accounts
+                .get(&sender_id)
+                .unwrap()
+                .token_balance
+                .is_none(),
+            "{}",
+            ER53_ACC_UNCLAIMED_TOKEN_BALANCE_WARNING
+        );
+
         let token_in = env::predecessor_account_id();
         let amount_in = amount;
         let fee = amount_in
@@ -155,12 +179,14 @@ impl Contract {
 
         match env::promise_result(0) {
             PromiseResult::Successful(result) => {
-                let amount_out: NearToken = String::from_utf8(result)
-                    .unwrap()
-                    .trim_matches('"')
-                    .to_string()
-                    .parse()
-                    .unwrap();
+                let amount_out = NearToken::from_yoctonear(
+                    String::from_utf8(result)
+                        .unwrap()
+                        .trim_matches('"')
+                        .to_string()
+                        .parse()
+                        .unwrap(),
+                );
 
                 ext_ref_exchange::ext(self.ref_exchange_id.clone())
                     .with_static_gas(Gas::from_tgas(50))

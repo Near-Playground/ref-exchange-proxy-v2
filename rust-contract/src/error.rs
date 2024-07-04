@@ -23,6 +23,8 @@ pub const ER50_FAIL_TO_PARSE_SWAP_ACTIONS: &str = "Invalid swap actions format."
 pub const ER51_EMPTY_SWAP_ACTIONS: &str = "Must have at least one swap action.";
 pub const ER52_SWAP_RESULT_TOKEN_NOT_SUPPORTED: &str =
     "The swap result tokens is not supported by this contract yet, please call register_token first.";
+pub const ER53_ACC_UNCLAIMED_TOKEN_BALANCE_WARNING: &str =
+    "Unclaimed token balance detected. Please withdraw it before swapping.";
 
 // Ref Exchange Related
 pub const ER60_REF_EXCHANGE_WITHDRAWAL_FAILED: &str = "Failed to withdraw from Ref Exchange.";
