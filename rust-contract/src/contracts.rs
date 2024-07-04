@@ -1,5 +1,5 @@
-use near_sdk::ext_contract;
 use crate::*;
+use near_sdk::ext_contract;
 
 #[ext_contract(ext_fungible_token)]
 pub trait _FungibleTokenContract {

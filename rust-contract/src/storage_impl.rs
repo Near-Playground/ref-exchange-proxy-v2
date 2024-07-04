@@ -12,7 +12,7 @@ const ACC_ID_STORAGE: StorageUsage = 64;
 const ACC_ID_AS_KEY_STORAGE: StorageUsage = ACC_ID_STORAGE + 4;
 const LOOKUPMAP_STORAGE_PER_ACCOUNT: StorageUsage = ACC_ID_AS_KEY_STORAGE + ACCOUNT_STORAGE;
 
-#[derive(BorshSerialize, BorshDeserialize, Serialize, Deserialize,  Clone)]
+#[derive(BorshSerialize, BorshDeserialize, Serialize, Deserialize, Clone)]
 pub struct TokenBalance {
     pub token_account_id: AccountId,
     pub balance: NearToken,
@@ -21,12 +21,14 @@ pub struct TokenBalance {
 #[derive(BorshSerialize, BorshDeserialize, Default, Clone)]
 pub struct Account {
     pub storage_balance: NearToken,
-    pub token_balance: Option<TokenBalance>
+    pub token_balance: Option<TokenBalance>,
 }
 
 impl Contract {
     fn internal_storage_cost(&self) -> NearToken {
-        NearToken::from_yoctonear(LOOKUPMAP_STORAGE_PER_ACCOUNT as u128 * env::storage_byte_cost().as_yoctonear())
+        NearToken::from_yoctonear(
+            LOOKUPMAP_STORAGE_PER_ACCOUNT as u128 * env::storage_byte_cost().as_yoctonear(),
+        )
     }
 
     fn internal_storage_registered(&self, account_id: &AccountId) -> bool {
@@ -40,7 +42,7 @@ impl StorageManagement for Contract {
     fn storage_deposit(
         &mut self,
         account_id: Option<AccountId>,
-        // Our contract's storage min bound is exactly same with storage max bound 
+        // Our contract's storage min bound is exactly same with storage max bound
         // Thus whether or not registration only is true, this function is expected to behave the same way
         _registration_only: Option<bool>,
     ) -> StorageBalance {
@@ -50,14 +52,18 @@ impl StorageManagement for Contract {
 
         if self.internal_storage_registered(&account_id) {
             Promise::new(env::predecessor_account_id()).transfer(amount);
-        }
-        else {
-            self.accounts.insert(account_id.clone(), Account {
-                storage_balance: self.internal_storage_cost(),
-                token_balance: None
-            });
+        } else {
+            self.accounts.insert(
+                account_id.clone(),
+                Account {
+                    storage_balance: self.internal_storage_cost(),
+                    token_balance: None,
+                },
+            );
 
-            let refund = amount.checked_sub(self.internal_storage_cost()).expect(ER11_ACC_NOT_ENOUGH_STORAGE_DEPOSIT);
+            let refund = amount
+                .checked_sub(self.internal_storage_cost())
+                .expect(ER11_ACC_NOT_ENOUGH_STORAGE_DEPOSIT);
 
             if refund.gt(&NearToken::from_yoctonear(0)) {
                 Promise::new(env::predecessor_account_id()).transfer(refund);
@@ -73,9 +79,14 @@ impl StorageManagement for Contract {
 
         // Our contract's storage min bound is exactly same with storage max bound
         // Thus user is expected to not able to withdraw any storage balance
-        assert!(amount.unwrap_or(NearToken::from_yoctonear(0)).is_zero(), "{}", ER12_ACC_NOT_ENOUGH_STORAGE_BALANCE_FOR_WITHDRAWAL);
+        assert!(
+            amount.unwrap_or(NearToken::from_yoctonear(0)).is_zero(),
+            "{}",
+            ER12_ACC_NOT_ENOUGH_STORAGE_BALANCE_FOR_WITHDRAWAL
+        );
 
-        self.storage_balance_of(env::predecessor_account_id()).unwrap()
+        self.storage_balance_of(env::predecessor_account_id())
+            .unwrap()
     }
 
     #[payable]
@@ -84,8 +95,11 @@ impl StorageManagement for Contract {
 
         let account_id = env::predecessor_account_id();
         let force_unregister = force.unwrap_or(false);
-        
-        let account = self.accounts.get(&account_id).expect(ER10_ACC_NOT_REGISTERED);
+
+        let account = self
+            .accounts
+            .get(&account_id)
+            .expect(ER10_ACC_NOT_REGISTERED);
         let storage_balance = account.storage_balance;
 
         if account.token_balance.is_some() && !force_unregister {
@@ -96,7 +110,11 @@ impl StorageManagement for Contract {
         // They should have expected that behaviour since they are purposely setting force to be true
         self.accounts.remove(&account_id);
 
-        assert!(env::account_balance().gt(&storage_balance), "{}", ER14_CONTRACT_NOT_ENOUGH_BALANCE_FOR_ACC_UNREGISTER);
+        assert!(
+            env::account_balance().gt(&storage_balance),
+            "{}",
+            ER14_CONTRACT_NOT_ENOUGH_BALANCE_FOR_ACC_UNREGISTER
+        );
 
         Promise::new(account_id.clone()).transfer(storage_balance);
 
@@ -118,7 +136,9 @@ impl StorageManagement for Contract {
 
             Some(StorageBalance {
                 total: storage_balance,
-                available: storage_balance.checked_sub(self.internal_storage_cost()).unwrap(),
+                available: storage_balance
+                    .checked_sub(self.internal_storage_cost())
+                    .unwrap(),
             })
         } else {
             None
