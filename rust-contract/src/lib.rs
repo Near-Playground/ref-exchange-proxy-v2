@@ -122,4 +122,12 @@ impl Contract {
         self.assert_owner();
         ext_ref_exchange::ext(self.ref_exchange_id.clone()).withdraw(token_id, amount, None, None)
     }
+
+    #[payable]
+    pub fn register_token(&mut self, token_id: AccountId) {
+        // Owner should make sure to register storage depsoit before register the token
+        assert_one_yocto();
+        self.assert_owner();
+        self.registered_tokens.insert(token_id);
+    }
 }
